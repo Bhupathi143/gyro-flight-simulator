@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title> My  Flight Simulator </title>
+<title> gyro  Flight Simulator </title>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -143,20 +143,20 @@ input[type=range] {
 </head>
 <body>
 
-<h3>✈️ My  Flight Simulator</h3>
+<h3>✈️ gyro  Flight Simulator</h3>
 
 <div id="statusBadge" class="idle">
     <span id="statusDot"></span>
-    <span id="statusText">My  not started</span>
+    <span id="statusText">gyro  not started</span>
 </div>
 
 <canvas id="canvas" width="360" height="400"></canvas>
 
-<p id="touchHint">📱 No My ? Drag on canvas to fly</p>
+<p id="touchHint">📱 No gyro ? Drag on canvas to fly</p>
 
 <div class="ui">
     <div class="btn-row">
-        <button id="startBtn" type="button">▶ Enable My </button>
+        <button id="startBtn" type="button">▶ Enable gyro </button>
         <button id="calibrateBtn" type="button" class="secondary">⊕ Set Neutral</button>
     </div>
 
@@ -165,9 +165,9 @@ input[type=range] {
 </div>
 
 <div id="httpsWarn">
-    ⚠️ <b>HTTPS required for My .</b><br>
+    ⚠️ <b>HTTPS required for gyro .</b><br>
     Open this file via <code>https://</code> or use a local server.<br>
-    On iOS/Android, My  is blocked on plain <code>http://</code> origins.<br>
+    On iOS/Android, gyro  is blocked on plain <code>http://</code> origins.<br>
     <b>Touch drag fallback is active.</b>
 </div>
 
@@ -181,9 +181,9 @@ input[type=range] {
 
 <script>
 // ══════════════════════════════════════════════
-// My  STATE MACHINE
+// gyro  STATE MACHINE
 // States: idle → requesting → active | denied | unsupported
-// Fallback: touch drag when My  unavailable
+// Fallback: touch drag when gyro  unavailable
 // ══════════════════════════════════════════════
 
 const canvas = document.getElementById("canvas");
@@ -192,8 +192,8 @@ const W = canvas.width, H = canvas.height;
 
 // ── Sensor raw values ──
 let beta = 0, gamma = 0, alpha = 0;
-let My EventCount = 0;
-let My Active = false;   // true once real events with non-zero data arrive
+let gyro EventCount = 0;
+let gyro Active = false;   // true once real events with non-zero data arrive
 
 // ── Smoothed values (EMA) ──
 let smoothBeta = 0, smoothGamma = 0;
@@ -236,28 +236,28 @@ function setStatus(state, msg) {
 
 // ══════════════════════════════════════════════
 // HTTPS CHECK
-// My  requires secure context on iOS Safari 13+ and Chrome Android
+// gyro  requires secure context on iOS Safari 13+ and Chrome Android
 // ══════════════════════════════════════════════
 const isSecure = location.protocol === "https:" || location.hostname === "localhost" || location.hostname === "127.0.0.1";
 if (!isSecure) {
     document.getElementById("httpsWarn").style.display = "block";
     document.getElementById("touchHint").style.display = "block";
-    setStatus("nohttp", "HTTP — My  blocked by browser");
+    setStatus("nohttp", "HTTP — gyro  blocked by browser");
 }
 
 // ══════════════════════════════════════════════
-// My  ACTIVATION
+// gyro  ACTIVATION
 // Handles three cases:
 //   1. iOS 13+ — must call requestPermission() from user gesture
 //   2. Android / others — just add listener (no permission API)
 //   3. DeviceOrientationEvent absent — fully unsupported, use touch
 // ══════════════════════════════════════════════
-document.getElementById("startBtn").addEventListener("click", startMy );
+document.getElementById("startBtn").addEventListener("click", startgyro );
 
-function startMy () {
+function startgyro () {
     // DeviceOrientationEvent not available at all (desktop, some browsers)
     if (typeof DeviceOrientationEvent === "undefined") {
-        activateTouchFallback("No My  sensor detected");
+        activateTouchFallback("No gyro  sensor detected");
         return;
     }
 
@@ -266,12 +266,12 @@ function startMy () {
         DeviceOrientationEvent.requestPermission()
             .then(state => {
                 if (state === "granted") {
-                    attachMy Listener();
+                    attachgyro Listener();
                 } else {
                     // User denied — fall back to touch
                     setStatus("denied", "Permission denied — using touch");
                     document.getElementById("touchHint").style.display = "block";
-                    activateTouchFallback("My  denied — drag to fly");
+                    activateTouchFallback("gyro  denied — drag to fly");
                 }
             })
             .catch(err => {
@@ -282,11 +282,11 @@ function startMy () {
             });
     } else {
         // Android / non-iOS: just attach and verify data arrives
-        attachMy Listener();
+        attachgyro Listener();
     }
 }
 
-function attachMy Listener() {
+function attachgyro Listener() {
     setStatus("idle", "Waiting for sensor data…");
 
     // Try primary event first
@@ -307,23 +307,23 @@ function attachMy Listener() {
         // First real data — mark as active
         if (!listening) {
             listening = true;
-            My Active = true;
-            setStatus("active", "My  active ✓");
-            document.getElementById("startBtn").textContent = "✓ My  Live";
+            gyro Active = true;
+            setStatus("active", "gyro  active ✓");
+            document.getElementById("startBtn").textContent = "✓ gyro  Live";
             document.getElementById("startBtn").disabled = true;
         }
 
         beta  = e.beta  ?? 0;
         gamma = e.gamma ?? 0;
         alpha = e.alpha ?? 0;
-        My EventCount++;
+        gyro EventCount++;
 
         // Live sensor debug panel
         document.getElementById("sensorPanel").classList.add("live");
         document.getElementById("dbBeta").textContent  = beta.toFixed(1);
         document.getElementById("dbGamma").textContent = gamma.toFixed(1);
         document.getElementById("dbAlpha").textContent = alpha.toFixed(1);
-        document.getElementById("dbCount").textContent = My EventCount;
+        document.getElementById("dbCount").textContent = gyro EventCount;
     }
 
     window.addEventListener("deviceorientation", onOrientation, true);
@@ -555,9 +555,9 @@ function drawTelemetry(altitude, velocity, heading, pitch, mode, isStalling) {
     ctx.font = "9px monospace";
     ctx.fillText("THR", bx - 1, by + bh + 12);
 
-    // My  mode badge bottom-right
-    const modeLabel = My Active ? "My " : (touchActive ? "TOUCH" : "IDLE");
-    const modeColor = My Active ? "#00e87a" : (touchActive ? "#7986cb" : "#445");
+    // gyro  mode badge bottom-right
+    const modeLabel = gyro Active ? "gyro " : (touchActive ? "TOUCH" : "IDLE");
+    const modeColor = gyro Active ? "#00e87a" : (touchActive ? "#7986cb" : "#445");
     ctx.fillStyle = modeColor;
     ctx.font = "9px monospace";
     ctx.textAlign = "right";
@@ -575,9 +575,9 @@ function loop() {
     smoothBeta  = SMOOTH * smoothBeta  + (1 - SMOOTH) * beta;
     smoothGamma = SMOOTH * smoothGamma + (1 - SMOOTH) * gamma;
 
-    // ── Effective pitch & roll (from My  or touch) ──
+    // ── Effective pitch & roll (from gyro  or touch) ──
     let pitch, roll;
-    if (My Active) {
+    if (gyro Active) {
         pitch = smoothBeta  - betaOffset;
         roll  = smoothGamma - gammaOffset;
     } else {
